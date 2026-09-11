@@ -19,6 +19,17 @@ export function configurarCarrito() {
     });
 
     document.querySelector("#clearCartButton").addEventListener("click", vaciarCarrito);
+
+    document.querySelector("#cartExploreButton").addEventListener("click", event => {
+        event.preventDefault();
+
+        const cartOffcanvas = document.querySelector("#cartOffcanvas");
+        bootstrap.Offcanvas.getOrCreateInstance(cartOffcanvas).hide();
+
+        window.setTimeout(() => {
+            document.querySelector("#catalogo")?.scrollIntoView({ behavior: "smooth" });
+        }, 250);
+    });
 }
 
 export function agregarAlCarrito(producto) {
@@ -109,19 +120,15 @@ function renderizarCarrito() {
 
     cartItems.innerHTML = carrito.map(item => `
         <div class="cart-row">
-            <img class="cart-row-image"
-                 src="${item.imagen || "https://placehold.co/150x150/fff0f1/e63946?text=MM"}"
-                 alt="${escapeHtml(item.nombre)}">
-
             <div class="cart-row-info">
                 <h3>${escapeHtml(item.nombre)}</h3>
                 <strong>${formatearPrecio(item.precio * item.cantidad)}</strong>
 
                 <div class="quantity-controls">
-                    <button data-cart-action="decrease" data-id="${escapeAttribute(item.id)}"
+                    <button type="button" class="quantity-button" data-cart-action="decrease" data-id="${escapeAttribute(item.id)}"
                             aria-label="Disminuir cantidad">−</button>
-                    <span>${item.cantidad}</span>
-                    <button data-cart-action="increase" data-id="${escapeAttribute(item.id)}"
+                    <span class="quantity-value">${item.cantidad}</span>
+                    <button type="button" class="quantity-button" data-cart-action="increase" data-id="${escapeAttribute(item.id)}"
                             aria-label="Aumentar cantidad">+</button>
                 </div>
             </div>

@@ -169,10 +169,12 @@
                     <div class="col-lg-6">
                         <div class="hero-art">
 
-                            <div class="hero-image-main">
-                                <img src="logo.png"
-                                     alt="Logo de Maria Mia"
-                                     class="hero-logo-image">
+                            <div class="hero-image-main hero-typography">
+                                <div class="hero-brand-text">
+                                    <span class="hero-brand-small">MARIA</span>
+                                    <strong>MIA</strong>
+                                    <span class="hero-brand-subtitle">BEAUTY</span>
+                                </div>
                             </div>
 
                             <div class="hero-circle-text">
@@ -194,6 +196,7 @@
                     </div>
 
                 </div>
+
             </div>
         </section>
 
@@ -292,6 +295,53 @@
             </div>
         </section>
 
+        <!-- Catálogo -->
+        <section id="catalogo" class="catalog-section">
+            <div class="container">
+                <div class="catalog-intro">
+                    <span class="section-kicker">THE MARIA MIA STORE</span>
+                    <h2>Haz espacio para <em>algo nuevo.</em></h2>
+                    <p>Productos para preparar, transformar y completar tu look.</p>
+                </div>
+
+                <div class="catalog-toolbar">
+                    <div class="catalog-search">
+                        <i class="bi bi-search"></i>
+                        <label for="searchInput" class="visually-hidden">Buscar productos</label>
+                        <input id="searchInput" type="search" list="searchOptions"
+                               placeholder="Buscar por producto, marca o categoría..." autocomplete="off">
+                        <datalist id="searchOptions"></datalist>
+                    </div>
+                    <div id="filterList" class="filter-list"></div>
+                </div>
+
+                <div id="catalogLoading" class="catalog-loading">
+                    <div class="loading-symbol"><i class="bi bi-stars"></i></div>
+                    <p>Preparando tu beauty edit...</p>
+                </div>
+
+                <div id="catalogError" class="catalog-error d-none">
+                    <i class="bi bi-cloud-slash"></i>
+                    <h3>No pudimos cargar el catálogo</h3>
+                    <p>Revisa tu conexión e inténtalo nuevamente.</p>
+                    <button id="retryButton" class="btn btn-main">Reintentar</button>
+                </div>
+
+                <div id="emptyState" class="empty-catalog d-none">
+                    <i class="bi bi-search-heart"></i>
+                    <h3>No encontramos productos</h3>
+                    <p>Prueba con otra palabra o categoría.</p>
+                </div>
+
+                <div id="productGrid" class="row g-4"></div>
+                <div id="loadMoreWrapper" class="load-more-wrapper d-none">
+                    <button id="loadMoreButton" type="button" class="btn btn-light-main">
+                        Cargar más productos <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Categorías dinámicas -->
         <section id="categorias" class="categories-section">
             <div class="container">
@@ -339,69 +389,6 @@
             </div>
         </section>
 
-        <!-- Catálogo -->
-        <section id="catalogo" class="catalog-section">
-            <div class="container">
-
-                <div class="catalog-intro">
-                    <span class="section-kicker">THE MARIA MIA STORE</span>
-
-                    <h2>
-                        Haz espacio para
-                        <em>algo nuevo.</em>
-                    </h2>
-
-                    <p>
-                        Productos para preparar, transformar y completar tu look.
-                    </p>
-                </div>
-
-                <div class="catalog-toolbar">
-                    <div class="catalog-search">
-                        <i class="bi bi-search"></i>
-
-                        <label for="searchInput" class="visually-hidden">
-                            Buscar productos
-                        </label>
-
-                        <input id="searchInput"
-                                type="search"
-                                list="searchOptions"
-                                placeholder="Buscar por producto, marca o categoría..."
-                                autocomplete="off">
-
-                        <datalist id="searchOptions"></datalist>
-                    </div>
-
-                    <div id="filterList" class="filter-list"></div>
-                </div>
-
-                <div id="catalogLoading" class="catalog-loading">
-                    <div class="loading-symbol">
-                        <i class="bi bi-stars"></i>
-                    </div>
-                    <p>Preparando tu beauty edit...</p>
-                </div>
-
-                <div id="catalogError" class="catalog-error d-none">
-                    <i class="bi bi-cloud-slash"></i>
-                    <h3>No pudimos cargar el catálogo</h3>
-                    <p>Revisa tu conexión e inténtalo nuevamente.</p>
-                    <button id="retryButton" class="btn btn-main">
-                        Reintentar
-                    </button>
-                </div>
-
-                <div id="emptyState" class="empty-catalog d-none">
-                    <i class="bi bi-search-heart"></i>
-                    <h3>No encontramos productos</h3>
-                    <p>Prueba con otra palabra o categoría.</p>
-                </div>
-
-                <div id="productGrid" class="row g-4"></div>
-            </div>
-        </section>
-
         <!-- Beneficios -->
         <section class="benefits-section">
             <div class="container">
@@ -441,6 +428,7 @@
                     </div>
 
                 </div>
+
             </div>
         </section>
 
@@ -494,6 +482,35 @@
                     </div>
 
                 </div>
+
+                <div class="about-location-media">
+                    <div class="location-card">
+                        <div class="location-card-header">
+                            <span class="section-kicker">VISÍTANOS</span>
+                            <h3>Encuéntranos en tienda</h3>
+                            <p>C.C. Acrópolis, Local 211-A</p>
+                        </div>
+
+                        <div class="map-wrapper">
+                            <iframe
+                                src="https://www.google.com/maps?cid=17676166033509544265&amp;output=embed"
+                                title="Ubicación de Maria Mia en C.C. Acrópolis"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+
+                        <a href="https://www.google.com/maps?cid=17676166033509544265&amp;g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&amp;hl=es-419&amp;source=embed"
+                           target="_blank"
+                           rel="noopener"
+                           class="location-link">
+                            Abrir ubicación en Google Maps
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </section>
 
@@ -533,41 +550,68 @@
                     </p>
                 </div>
 
-                <div class="contact-grid">
+                <div class="contact-layout">
+                    <div class="contact-grid">
+                        <a href="https://api.whatsapp.com/send?phone=573171364337&amp;text=Hola!!!%20Quisiera%20realizar%20un%20pedido%F0%9F%92%95%E2%9C%A8"
+                           target="_blank"
+                           rel="noopener"
+                           class="contact-card">
+                            <i class="bi bi-whatsapp"></i>
+                            <span>
+                                <small>WhatsApp</small>
+                                <strong>Escríbenos directamente</strong>
+                            </span>
+                            <i class="bi bi-arrow-up-right contact-arrow"></i>
+                        </a>
 
-                    <a href="https://wa.me/WHATSAPP_NUMBER"
-                       target="_blank"
-                       rel="noopener"
-                       class="contact-card">
-                        <i class="bi bi-whatsapp"></i>
-                        <span>
-                            <small>WhatsApp</small>
-                            <strong>Escríbenos directamente</strong>
-                        </span>
-                        <i class="bi bi-arrow-up-right contact-arrow"></i>
-                    </a>
+                        <a href="https://www.instagram.com/mariamiabga/"
+                           target="_blank"
+                           rel="noopener"
+                           class="contact-card">
+                            <i class="bi bi-instagram"></i>
+                            <span>
+                                <small>Instagram</small>
+                                <strong>Síguenos en redes</strong>
+                            </span>
+                            <i class="bi bi-arrow-up-right contact-arrow"></i>
+                        </a>
 
-                    <a href="INSTAGRAM_URL"
-                       target="_blank"
-                       rel="noopener"
-                       class="contact-card">
-                        <i class="bi bi-instagram"></i>
-                        <span>
-                            <small>Instagram</small>
-                            <strong>Síguenos en redes</strong>
-                        </span>
-                        <i class="bi bi-arrow-up-right contact-arrow"></i>
-                    </a>
-
-                    <div class="contact-card">
-                        <i class="bi bi-envelope-heart"></i>
-                        <span>
-                            <small>Email</small>
-                            <strong>EMAIL_PLACEHOLDER</strong>
-                        </span>
-                        <i class="bi bi-arrow-up-right contact-arrow"></i>
+                        <a href="https://www.tiktok.com/@mariamiabga"
+                           target="_blank"
+                           rel="noopener"
+                           class="contact-card">
+                            <i class="bi bi-tiktok"></i>
+                            <span>
+                                <small>TikTok</small>
+                                <strong>Descubre nuestros looks</strong>
+                            </span>
+                            <i class="bi bi-arrow-up-right contact-arrow"></i>
+                        </a>
                     </div>
 
+                    <div class="instagram-card">
+                        <div class="instagram-card-header">
+                            <span class="section-kicker">SÍGUENOS</span>
+                            <h3>Conoce nuestro universo</h3>
+                            <p>Descubre nuestros productos, looks y novedades en Instagram.</p>
+                        </div>
+
+                        <div class="instagram-reel-wrapper">
+                            <blockquote
+                                class="instagram-media"
+                                data-instgrm-permalink="https://www.instagram.com/reel/Dbwa55Npd0R/"
+                                data-instgrm-version="14">
+                            </blockquote>
+                        </div>
+
+                        <a href="https://www.instagram.com/reel/Dbwa55Npd0R/?utm_source=ig_web_copy_link&amp;stkn=MzRlODBiNWFlZA=="
+                           target="_blank"
+                           rel="noopener"
+                           class="instagram-link">
+                            Ver reel en Instagram
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -597,9 +641,12 @@
 
                 <div class="footer-column">
                     <h3>Conecta</h3>
-                    <a href="INSTAGRAM_URL">Instagram</a>
-                    <a href="FACEBOOK_URL">Facebook</a>
-                    <a href="https://wa.me/WHATSAPP_NUMBER">WhatsApp</a>
+                          <a href="https://www.instagram.com/mariamiabga/"
+                              target="_blank" rel="noopener">Instagram</a>
+                          <a href="https://www.tiktok.com/@mariamiabga"
+                              target="_blank" rel="noopener">TikTok</a>
+                          <a href="https://api.whatsapp.com/send?phone=573171364337&amp;text=Hola!!!%20Quisiera%20realizar%20un%20pedido%F0%9F%92%95%E2%9C%A8"
+                              target="_blank" rel="noopener">WhatsApp</a>
                 </div>
 
                 <div class="footer-column footer-note">
@@ -648,7 +695,8 @@
                 <h3>Tu carrito está vacío</h3>
                 <p>Agrega productos para comenzar tu pedido.</p>
 
-                <a href="#catalogo"
+                     <a id="cartExploreButton"
+                         href="#catalogo"
                    class="btn btn-main"
                    data-bs-dismiss="offcanvas">
                     Explorar productos
@@ -662,9 +710,13 @@
                 </div>
 
                 <div class="summary-row total-row">
-                    <span>Total</span>
+                    <span>Subtotal productos</span>
                     <strong id="cartTotal">$0</strong>
                 </div>
+
+                <p class="shipping-notice">
+                    El envío se calcula y confirma por WhatsApp.
+                </p>
 
                 <button id="clearCartButton"
                         type="button"
@@ -729,10 +781,34 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="customerAddress">Dirección</label>
+                                     <label for="customerCity">Ciudad *</label>
+                                     <input id="customerCity"
+                                         name="ciudad"
+                                         type="text"
+                                         required>
+                                    </div>
+
+                                    <div class="form-group">
+                                     <label for="customerNeighborhood">Barrio *</label>
+                                     <input id="customerNeighborhood"
+                                         name="barrio"
+                                         type="text"
+                                         required>
+                                    </div>
+
+                                    <div class="form-group">
+                                     <label for="customerAddress">Dirección *</label>
                                     <input id="customerAddress"
                                            name="direccion"
-                                           type="text">
+                                         type="text"
+                                         required>
+                                    </div>
+
+                                    <div class="form-group">
+                                     <label for="customerApartment">Casa o apartamento</label>
+                                     <input id="customerApartment"
+                                         name="casaApartamento"
+                                         type="text">
                                 </div>
 
                                 <div class="form-group">
@@ -746,6 +822,10 @@
                             <div class="col-lg-6">
                                 <h3 class="form-title">Resumen del pedido</h3>
                                 <div id="checkoutSummary" class="checkout-summary"></div>
+                                <p class="shipping-notice">
+                                    El total mostrado no incluye el costo del envío.
+                                    Lo confirmaremos contigo por WhatsApp.
+                                </p>
                             </div>
 
                         </div>
@@ -785,6 +865,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script async src="https://www.instagram.com/embed.js"></script>
 
     <script type="module" src="app.js"></script>
 

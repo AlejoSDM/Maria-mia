@@ -3,7 +3,7 @@ import {
     obtenerSubtotal,
     vaciarCarrito
 } from "./carrito.js";
-import { enviarPedidoAN8N } from "./n8n.js";
+import { CONFIG } from "./config.js";
 import { formatearPrecio } from "./catalogo.js";
 
 export function configurarCheckout() {
@@ -22,7 +22,7 @@ function abrirCheckout() {
         </div>
     `).join("") + `
         <div class="summary-line total-line">
-            <span>Total</span>
+            <span>Subtotal sin envío</span>
             <strong>${formatearPrecio(obtenerSubtotal())}</strong>
         </div>
     `;
@@ -32,36 +32,66 @@ function abrirCheckout() {
     ).show();
 }
 
-async function enviarPedido(event) {
+function enviarPedido(event) {
     event.preventDefault();
 
     const button = document.querySelector("#confirmOrderButton");
     const datos = Object.fromEntries(new FormData(event.currentTarget));
+    const carrito = obtenerCarrito();
     const subtotal = obtenerSubtotal();
-    const pedido = {
-        cliente: datos,
-        productos: obtenerCarrito(),
-        subtotal,
-        total: subtotal,
-        fecha: new Date().toISOString()
-    };
+    const mensaje = crearMensajeWhatsApp(datos, carrito, subtotal);
+    const numero = String(CONFIG.WHATSAPP_NUMBER || "").replace(/\D/g, "");
 
     button.disabled = true;
 
     try {
-        await enviarPedidoAN8N(pedido);
+        if (!numero) {
+            throw new Error("WHATSAPP_NUMBER no configurado");
+        }
+
+        const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`;
+        const ventana = window.open(url, "_blank", "noopener,noreferrer");
+        if (!ventana) {
+            throw new Error("El navegador bloqueo la ventana de WhatsApp");
+        }
+
         bootstrap.Modal.getOrCreateInstance(
             document.querySelector("#checkoutModal")
         ).hide();
         event.currentTarget.reset();
         vaciarCarrito();
-        mostrarToast("Pedido recibido correctamente");
+        mostrarToast("Pedido preparado en WhatsApp");
     } catch (error) {
         console.error("Error enviando pedido:", error);
-        mostrarToast("No pudimos enviar el pedido. Intenta nuevamente.");
+        mostrarToast("No pudimos abrir WhatsApp. Intenta nuevamente.");
     } finally {
         button.disabled = false;
     }
+}
+
+function crearMensajeWhatsApp(datos, carrito, subtotal) {
+    const productos = carrito.map(item =>
+        `- ${item.nombre} x${item.cantidad}: ${formatearPrecio(item.precio * item.cantidad)}`
+    ).join("\n");
+
+    return [
+        "Hola Maria Mia, quiero realizar este pedido:",
+        "",
+        `Nombre: ${datos.nombre || "No indicado"}`,
+        `Telefono: ${datos.telefono || "No indicado"}`,
+        `Ciudad: ${datos.ciudad || "No indicada"}`,
+        `Barrio: ${datos.barrio || "No indicado"}`,
+        `Direccion: ${datos.direccion || "No indicada"}`,
+        `Casa o apartamento: ${datos.casaApartamento || "No indicado"}`,
+        `Observaciones: ${datos.observaciones || "Ninguna"}`,
+        "",
+        "Productos:",
+        productos,
+        "",
+        `Subtotal productos: ${formatearPrecio(subtotal)}`,
+        "Envio: por confirmar",
+        "Total final: pendiente de confirmar con el envio"
+    ].join("\n");
 }
 
 function mostrarToast(mensaje) {

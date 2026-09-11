@@ -2,9 +2,16 @@ import { CONFIG } from "./config.js";
 import { agregarAlCarrito } from "./carrito.js";
 
 let allProducts = [];
+let featuredProducts = [];
 let activeCategory = "Todas";
 let activeBrand = "Todas";
 let searchTerm = "";
+let visibleProducts = 10;
+
+const cacheKey = "catalogo_productos_web";
+
+const desktopProductsPerPage = 10;
+const mobileProductsPerPage = 6;
 
 const iconosCategoria = {
     rostro: "bi-droplet-half",
@@ -17,19 +24,39 @@ const iconosCategoria = {
 function setProducts(products) {
     allProducts = products
         .map(normalizeProduct)
-        .filter(product => product.id && product.nombre);
+        .filter(product => product.id && product.nombre)
+        .filter(isProductAvailable);
+    featuredProducts = allProducts.filter(isFeaturedProduct).slice(0, 5);
+    visibleProducts = getProductsPerPage();
 
     renderizarCategorias();
     createFilters();
     createSearchOptions();
 
     renderFilteredProducts();
-    renderFeaturedProducts();
+    renderFeaturedProducts(featuredProducts);
 }
 
 export async function cargarProductos() {
     mostrarCarga(true);
     ocultarError();
+
+    let hayProductosEnPantalla = false;
+
+    try {
+        const productosGuardados = localStorage.getItem(cacheKey);
+        if (productosGuardados) {
+            const listaGuardada = JSON.parse(productosGuardados);
+            if (Array.isArray(listaGuardada)) {
+                setProducts(listaGuardada);
+                mostrarCarga(false);
+                hayProductosEnPantalla = allProducts.length > 0;
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo leer el catálogo guardado:", error);
+        localStorage.removeItem(cacheKey);
+    }
 
     try {
         if (!CONFIG.API_URL || CONFIG.API_URL === "GOOGLE_SHEETS_API_URL") {
@@ -52,38 +79,53 @@ export async function cargarProductos() {
         }
 
         setProducts(lista);
+        localStorage.setItem(cacheKey, JSON.stringify(lista));
 
         mostrarCarga(false);
+        hayProductosEnPantalla = allProducts.length > 0;
     } catch (error) {
         console.error("Error cargando catálogo:", error);
         mostrarCarga(false);
-        mostrarError();
+        if (!hayProductosEnPantalla && allProducts.length === 0) {
+            mostrarError();
+        }
     }
 }
 
 function normalizeProduct(producto) {
     return {
-        id: String(producto.id ?? "").trim(),
-        nombre: String(producto.nombre ?? "").trim(),
-        categoria: String(producto.categoria ?? "General").trim(),
-        marca: String(producto.marca ?? "").trim(),
-        precio: Number(producto.precio ?? 0),
-        descripcion: String(producto.descripcion ?? "").trim(),
-        imagen: String(producto.imagen ?? "").trim(),
-        disponible: normalizarSiNo(producto.disponible),
-        destacado: normalizarSiNo(producto.destacado)
+        id: String(producto.id || crypto.randomUUID()).trim(),
+        nombre: String(producto.nombre || "").trim(),
+        categoria: String(producto.categoria || "").trim(),
+        subcategoria: String(producto.subcategoria || "").trim(),
+        precio: Number(
+            String(producto.precio || 0)
+                .replace(/\$/g, "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+        ),
+        descripcion: String(producto.descripcion || "").trim(),
+        imagen: String(producto.imagen || "").trim(),
+        disponible: String(producto.disponible || "").trim(),
+        destacado: String(producto.destacado || "").trim(),
+        marca: String(producto.marca || "").trim()
     };
 }
 
-function normalizarSiNo(valor) {
-    return ["si", "sí", "yes", "true", "1"].includes(
-        String(valor).toLowerCase().trim()
-    );
+function isProductAvailable(product) {
+    const value = String(product.disponible || "").trim().toLowerCase();
+    return ["si", "sí", "true", "1", "disponible", "yes"].includes(value);
+}
+
+function isFeaturedProduct(product) {
+    const value = String(product.destacado || "").trim().toLowerCase();
+    return ["si", "sí", "true", "1", "yes"].includes(value);
 }
 
 export function configurarCatalogo() {
     document.querySelector("#searchInput").addEventListener("input", event => {
         searchTerm = event.target.value.toLowerCase().trim();
+        visibleProducts = getProductsPerPage();
         renderFilteredProducts();
     });
 
@@ -95,6 +137,7 @@ export function configurarCatalogo() {
 
         if (button.dataset.filterType === "category") activeCategory = button.dataset.filterValue;
         if (button.dataset.filterType === "brand") activeBrand = button.dataset.filterValue;
+        visibleProducts = getProductsPerPage();
         updateActiveFilterButtons();
         renderFilteredProducts();
     });
@@ -105,6 +148,7 @@ export function configurarCatalogo() {
 
         activeCategory = card.dataset.category;
         document.querySelector("#catalogo").scrollIntoView({ behavior: "smooth" });
+        visibleProducts = getProductsPerPage();
         updateActiveFilterButtons();
         renderFilteredProducts();
     });
@@ -124,31 +168,64 @@ export function configurarCatalogo() {
         const producto = allProducts.find(item => item.id === button.dataset.addProduct);
         if (producto) agregarAlCarrito(producto);
     });
+
+    document.querySelector("#loadMoreButton").addEventListener("click", () => {
+        visibleProducts += getProductsPerPage();
+        renderFilteredProducts();
+    });
+
+    let previousMobileState = window.innerWidth <= 767;
+    window.addEventListener("resize", () => {
+        const currentMobileState = window.innerWidth <= 767;
+        if (currentMobileState !== previousMobileState) {
+            previousMobileState = currentMobileState;
+            visibleProducts = getProductsPerPage();
+            renderFilteredProducts();
+        }
+    });
 }
 
 function renderFilteredProducts() {
-    const resultado = allProducts.filter(producto => {
+    const matchingProducts = allProducts.filter(producto => {
         const coincideCategoria = activeCategory === "Todas" ||
             producto.categoria.toLowerCase() === activeCategory.toLowerCase();
         const coincideMarca = activeBrand === "Todas" ||
             producto.marca.toLowerCase() === activeBrand.toLowerCase();
-        const texto = `${producto.nombre} ${producto.categoria} ${producto.marca} ${producto.descripcion}`.toLowerCase();
+        const texto = `${producto.nombre} ${producto.descripcion} ${producto.categoria} ${producto.subcategoria} ${producto.marca}`.toLowerCase();
         return coincideCategoria && coincideMarca && texto.includes(searchTerm);
     });
+    const resultado = matchingProducts.slice(0, visibleProducts);
 
     const grid = document.querySelector("#productGrid");
     grid.innerHTML = resultado.map(crearCardProducto).join("");
 
     document.querySelector("#emptyState").classList.toggle("d-none", resultado.length > 0);
+    updateLoadMoreButton(matchingProducts.length, resultado.length);
 }
 
-function renderFeaturedProducts() {
-    const destacados = allProducts.filter(producto => producto.destacado);
+function renderFeaturedProducts(destacados) {
     const contenedor = document.querySelector("#featuredProducts");
 
     contenedor.innerHTML = destacados.length
-        ? destacados.map(crearCardProducto).join("")
+        ? destacados.map(producto => crearCardProducto(producto, true)).join("")
         : `<div class="col-12 text-center text-muted">No hay productos destacados disponibles.</div>`;
+}
+
+function getProductsPerPage() {
+    return window.innerWidth <= 767 ? mobileProductsPerPage : desktopProductsPerPage;
+}
+
+function updateLoadMoreButton(totalProducts, shownProducts) {
+    const wrapper = document.querySelector("#loadMoreWrapper");
+    const button = document.querySelector("#loadMoreButton");
+    if (!wrapper || !button) return;
+
+    const hasMoreProducts = shownProducts < totalProducts;
+    wrapper.classList.toggle("d-none", !hasMoreProducts);
+    if (!hasMoreProducts) return;
+
+    const remainingProducts = totalProducts - shownProducts;
+    button.innerHTML = `Cargar más productos <span class="load-more-count">${Math.min(remainingProducts, getProductsPerPage())}</span><i class="bi bi-plus-lg"></i>`;
 }
 
 function renderizarCategorias() {
@@ -182,14 +259,24 @@ function createFilters() {
     const categorias = [...new Set(allProducts.map(producto => producto.categoria))].filter(Boolean).sort();
     const marcas = [...new Set(allProducts.map(producto => producto.marca))].filter(Boolean).sort();
     contenedor.innerHTML = `
-        <div class="filter-group">
-            <span class="filter-label">Categoría</span>
-            ${["Todas", ...categorias].map(value => `<button type="button" class="filter-button" data-filter-type="category" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
-        </div>
-        <div class="filter-group">
-            <span class="filter-label">Marca</span>
-            ${["Todas", ...marcas].map(value => `<button type="button" class="filter-button" data-filter-type="brand" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
-        </div>`;
+        <details class="filter-group">
+            <summary class="filter-trigger">
+                <span><i class="bi bi-grid-3x3-gap"></i> Filtrar por categoría</span>
+                <i class="bi bi-chevron-down filter-chevron"></i>
+            </summary>
+            <div class="filter-options">
+                ${["Todas", ...categorias].map(value => `<button type="button" class="filter-button" data-filter-type="category" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
+            </div>
+        </details>
+        <details class="filter-group">
+            <summary class="filter-trigger">
+                <span><i class="bi bi-tags"></i> Filtrar por marca</span>
+                <i class="bi bi-chevron-down filter-chevron"></i>
+            </summary>
+            <div class="filter-options">
+                ${["Todas", ...marcas].map(value => `<button type="button" class="filter-button" data-filter-type="brand" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
+            </div>
+        </details>`;
     updateActiveFilterButtons();
 }
 
@@ -205,13 +292,18 @@ function updateActiveFilterButtons() {
 function createSearchOptions() {
     const searchOptions = document.querySelector("#searchOptions");
     if (!searchOptions) return;
-    const options = [...new Set(allProducts.flatMap(product => [product.nombre, product.marca, product.categoria]))]
+    const options = [...new Set(allProducts.flatMap(product => [
+        product.nombre,
+        product.marca,
+        product.categoria,
+        product.subcategoria
+    ]))]
         .filter(Boolean)
         .sort();
     searchOptions.innerHTML = options.map(option => `<option value="${escapeAttribute(option)}"></option>`).join("");
 }
 
-function crearCardProducto(producto) {
+function crearCardProducto(producto, isFeatured = false) {
     const imagen = producto.imagen || "https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia";
     const agotado = !producto.disponible;
 
@@ -225,26 +317,32 @@ function crearCardProducto(producto) {
                          loading="lazy"
                          onerror="this.src='https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia'">
 
+                    <div class="product-image-shine"></div>
+
                     <div class="product-badges">
-                        ${producto.destacado ? `<span class="badge-featured">FAVORITO</span>` : ""}
+                        ${isFeatured ? `<span class="product-badge product-badge-featured"><i class="bi bi-stars"></i> MM Select</span>` : ""}
                         ${agotado ? `<span class="badge-soldout">AGOTADO</span>` : ""}
                     </div>
+
                 </div>
 
                 <div class="product-content">
-                    <span class="product-category">${escapeHtml(producto.categoria)}</span>
-                    ${producto.marca ? `<small class="product-brand">${escapeHtml(producto.marca)}</small>` : ""}
-                    <h3>${escapeHtml(producto.nombre)}</h3>
-                    <p class="product-description">${escapeHtml(producto.descripcion)}</p>
+                    <div class="product-info">
+                        <span class="product-category">${escapeHtml(producto.categoria)}</span>
+                        ${producto.marca ? `<small class="product-brand">${escapeHtml(producto.marca)}</small>` : ""}
+                        <h3>${escapeHtml(producto.nombre)}</h3>
+                        <p class="product-description">${escapeHtml(producto.descripcion)}</p>
+                    </div>
 
                     <div class="product-footer">
                         <span class="product-price">${formatearPrecio(producto.precio)}</span>
-                        <button class="add-to-cart-button"
+                        <button type="button" class="add-to-cart-button"
                                 data-add-product="${escapeAttribute(producto.id)}"
                                 ${agotado ? "disabled" : ""}
                                 aria-label="Agregar ${escapeAttribute(producto.nombre)} al carrito"
                                 title="${agotado ? "Producto agotado" : "Agregar al carrito"}">
-                            <i class="bi bi-plus-lg"></i>
+                            <i class="bi bi-bag-plus"></i>
+                            <span>Agregar</span>
                         </button>
                     </div>
                 </div>
