@@ -304,7 +304,7 @@ function createSearchOptions() {
 }
 
 function crearCardProducto(producto, isFeatured = false) {
-    const imagen = producto.imagen || "https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia";
+    const imagen = obtenerImagenSegura(producto.imagen);
     const agotado = !producto.disponible;
 
     return `
@@ -388,4 +388,18 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
     return escapeHtml(value);
+}
+
+function obtenerImagenSegura(valor) {
+    const fallback = "https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia";
+    if (!valor) return fallback;
+
+    try {
+        const url = new URL(String(valor), window.location.href);
+        if (["http:", "https:"].includes(url.protocol)) return url.href;
+    } catch (error) {
+        return fallback;
+    }
+
+    return fallback;
 }

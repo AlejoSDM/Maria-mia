@@ -637,6 +637,7 @@
                     <a href="#catalogo">Catálogo</a>
                     <a href="#categorias">Categorías</a>
                     <a href="#nosotros">Nosotros</a>
+                    <a id="privacyFooterLink" href="#privacidad">Privacidad</a>
                 </div>
 
                 <div class="footer-column">
@@ -862,6 +863,43 @@
                 <span id="toastMessage"></span>
             </div>
         </div>
+    </div>
+
+    <aside id="privacyNotice" class="privacy-notice" aria-label="Aviso de privacidad">
+        <div class="privacy-notice-copy">
+            <strong>Tu privacidad importa</strong>
+            <p>
+                Usamos datos del pedido para atenderte por WhatsApp y guardamos el carrito
+                localmente en este navegador.
+            </p>
+            <button id="privacyMore" type="button" class="privacy-inline-button">
+                Ver más
+            </button>
+        </div>
+        <button id="privacyAccept" type="button" class="privacy-accept">Entendido</button>
+    </aside>
+
+    <div id="privacyModal" class="privacy-modal" role="dialog" aria-modal="true"
+         aria-labelledby="privacyModalTitle" hidden>
+        <div class="privacy-modal-backdrop" data-privacy-close></div>
+        <article class="privacy-modal-content">
+            <button type="button" class="privacy-modal-close" data-privacy-close aria-label="Cerrar política de privacidad">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <span class="section-kicker">INFORMACIÓN LEGAL</span>
+            <h2 id="privacyModalTitle">Política de privacidad</h2>
+            <p class="privacy-updated">Última actualización: 11 de septiembre de 2026</p>
+            <h3>1. Responsable</h3>
+            <p>Maria Mia es responsable del tratamiento de los datos que compartes voluntariamente a través de este sitio y sus canales de atención.</p>
+            <h3>2. Datos que recopilamos</h3>
+            <p>Podemos solicitar nombre, teléfono, ciudad, barrio, dirección, casa o apartamento y observaciones para preparar tu pedido. El carrito se guarda temporalmente en tu navegador.</p>
+            <h3>3. Uso de la información</h3>
+            <p>Usamos tus datos para revisar el pedido, confirmar disponibilidad y coordinar el envío contigo.</p>
+            <h3>4. WhatsApp y servicios externos</h3>
+            <p>Al confirmar, los datos y el resumen se envían a WhatsApp mediante un mensaje prellenado. Google Maps e Instagram tienen sus propias políticas de privacidad.</p>
+            <h3>5. Tus derechos</h3>
+            <p>Puedes solicitar información, corrección o eliminación de tus datos escribiéndonos por WhatsApp.</p>
+        </article>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

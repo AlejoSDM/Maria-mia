@@ -36,7 +36,7 @@ export function agregarAlCarrito(producto) {
     const existente = carrito.find(item => item.id === producto.id);
 
     if (existente) {
-        existente.cantidad += 1;
+        existente.cantidad = Math.min(existente.cantidad + 1, 99);
     } else {
         carrito.push({
             id: producto.id,
@@ -56,7 +56,7 @@ function modificarCantidad(id, cambio) {
     const producto = carrito.find(item => item.id === id);
     if (!producto) return;
 
-    producto.cantidad += cambio;
+    producto.cantidad = Math.min(producto.cantidad + cambio, 99);
 
     if (producto.cantidad <= 0) {
         eliminarProducto(id);
@@ -150,11 +150,34 @@ function renderizarCarrito() {
 
 function cargarCarritoGuardado() {
     try {
-        return JSON.parse(localStorage.getItem(CONFIG.CART_STORAGE_KEY)) || [];
+        const guardado = JSON.parse(localStorage.getItem(CONFIG.CART_STORAGE_KEY));
+        if (!Array.isArray(guardado)) return [];
+
+        return guardado
+            .map(normalizarItemCarrito)
+            .filter(Boolean);
     } catch (error) {
         console.error("No se pudo leer el carrito:", error);
         return [];
     }
+}
+
+function normalizarItemCarrito(item) {
+    if (!item || item.id === undefined || item.nombre === undefined) return null;
+
+    const precio = Number(item.precio);
+    const cantidad = Math.floor(Number(item.cantidad));
+    if (!Number.isFinite(precio) || precio < 0 || !Number.isFinite(cantidad) || cantidad < 1) {
+        return null;
+    }
+
+    return {
+        id: String(item.id).trim(),
+        nombre: String(item.nombre).trim().slice(0, 200),
+        precio,
+        imagen: String(item.imagen || "").trim(),
+        cantidad: Math.min(cantidad, 99)
+    };
 }
 
 function guardarCarrito() {
