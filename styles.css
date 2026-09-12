@@ -531,23 +531,97 @@ textarea:focus-visible {
     }
 }
 
-.hero-circle-text {
+.hero-editorial-label {
     position: absolute;
-    top: 3%;
-    left: 0;
+    top: 8%;
+    left: -3%;
+    z-index: 5;
     display: flex;
+    width: 142px;
+    min-height: 178px;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 125px;
-    height: 125px;
-    border: 1px solid rgba(255,255,255,.6);
-    border-radius: 50%;
-    color: #ffd6e0;
-    font-size: .63rem;
-    letter-spacing: .2em;
-    line-height: 1.6;
-    transform: rotate(-12deg);
+    padding: 1rem .95rem .9rem;
+    border: 1px solid rgba(255, 255, 255, .68);
+    background: rgba(49, 8, 23, .3);
+    box-shadow: 0 16px 32px rgba(49, 8, 23, .2);
+    color: white;
+    transform: rotate(-7deg);
+}
+
+.hero-editorial-label::before {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    bottom: 7px;
+    left: 7px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    content: "";
+}
+
+.hero-editorial-label::after {
+    position: absolute;
+    top: 0;
+    right: 18px;
+    width: 1px;
+    height: 28px;
+    background: #ffabc2;
+    box-shadow: 0 0 12px #ffabc2;
+    content: "";
+}
+
+.label-topline {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    color: #ffd3df;
+    font-size: .42rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.label-monogram {
+    position: relative;
+    z-index: 2;
+    margin: 1.3rem 0 .7rem;
+    color: #fff;
+    font-family: var(--serif);
+    font-size: 3.8rem;
+    font-style: italic;
+    letter-spacing: -.1em;
+    line-height: .72;
+}
+
+.label-rule {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 2px;
+    margin-bottom: .75rem;
+    background: var(--gold);
+}
+
+.hero-editorial-label strong {
+    position: relative;
+    z-index: 1;
+    color: #fff7fa;
+    font-size: .62rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+.label-caption {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    color: #ffd3df;
+    font-size: .42rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
 }
 
 .hero-floating-card {
@@ -1246,13 +1320,35 @@ textarea:focus-visible {
     height: 480px;
 }
 
-.about-visual img {
+.about-logo {
     position: relative;
     z-index: 2;
     width: 58%;
     max-width: 300px;
     border-radius: 50%;
     box-shadow: 0 25px 50px rgba(0, 0, 0, .25);
+    animation: spinAboutLogo 22s linear infinite;
+    will-change: transform;
+}
+
+@keyframes spinAboutLogo {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.about-logo:hover {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .about-logo {
+        animation: none;
+    }
 }
 
 .about-sticker {
@@ -2202,10 +2298,34 @@ textarea:focus-visible {
         min-height: 400px;
     }
 
-    .hero-circle-text {
-        width: 95px;
-        height: 95px;
-        font-size: .5rem;
+    .hero-editorial-label {
+        top: 5%;
+        left: -.6rem;
+        width: 104px;
+        min-height: 135px;
+        padding: .7rem .65rem .6rem;
+    }
+
+    .label-topline {
+        font-size: .3rem;
+    }
+
+    .label-monogram {
+        margin: 1rem 0 .5rem;
+        font-size: 2.8rem;
+    }
+
+    .label-rule {
+        width: 24px;
+        margin-bottom: .55rem;
+    }
+
+    .hero-editorial-label strong {
+        font-size: .45rem;
+    }
+
+    .label-caption {
+        font-size: .3rem;
     }
 
     .hero-floating-card {

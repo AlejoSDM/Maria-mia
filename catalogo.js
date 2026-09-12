@@ -63,7 +63,11 @@ export async function cargarProductos() {
             throw new Error("API_URL no configurada");
         }
 
-        const response = await fetch(CONFIG.API_URL, {
+        const apiUrl = new URL(CONFIG.API_URL);
+        apiUrl.searchParams.set("_", Date.now().toString());
+
+        const response = await fetch(apiUrl, {
+            cache: "no-store",
             headers: { Accept: "application/json" }
         });
 
@@ -197,7 +201,7 @@ function renderFilteredProducts() {
     const resultado = matchingProducts.slice(0, visibleProducts);
 
     const grid = document.querySelector("#productGrid");
-    grid.innerHTML = resultado.map(crearCardProducto).join("");
+    grid.innerHTML = resultado.map(producto => crearCardProducto(producto)).join("");
 
     document.querySelector("#emptyState").classList.toggle("d-none", resultado.length > 0);
     updateLoadMoreButton(matchingProducts.length, resultado.length);
