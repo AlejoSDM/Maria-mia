@@ -72,7 +72,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="#catalogo">Catálogo</a>
+                            <a class="nav-link" href="catalogo.html">Catálogo</a>
                         </li>
 
                         <li class="nav-item">
@@ -89,7 +89,7 @@
                     </ul>
 
                     <div class="navbar-actions">
-                        <a href="#catalogo" class="nav-search" aria-label="Buscar productos">
+                        <a href="catalogo.html" class="nav-search" aria-label="Buscar productos">
                             <i class="bi bi-search"></i>
                         </a>
 
@@ -136,7 +136,7 @@
                             </p>
 
                             <div class="hero-actions">
-                                <a href="#catalogo" class="btn btn-main btn-lg">
+                                <a href="catalogo.html" class="btn btn-main btn-lg">
                                     Explorar productos
                                     <i class="bi bi-arrow-up-right"></i>
                                 </a>
@@ -300,49 +300,28 @@
             </div>
         </section>
 
-        <!-- Catálogo -->
-        <section id="catalogo" class="catalog-section">
+        <!-- Vista previa del catálogo -->
+        <section class="catalog-preview-section">
             <div class="container">
-                <div class="catalog-intro">
-                    <span class="section-kicker">THE MARIA MIA STORE</span>
-                    <h2>Haz espacio para <em>algo nuevo.</em></h2>
+                <div class="section-heading-row">
+                    <div>
+                        <span class="section-kicker">THE MARIA MIA STORE</span>
+                        <h2>Haz espacio para algo nuevo.</h2>
+                    </div>
                     <p>Productos para preparar, transformar y completar tu look.</p>
                 </div>
 
-                <div class="catalog-toolbar">
-                    <div class="catalog-search">
-                        <i class="bi bi-search"></i>
-                        <label for="searchInput" class="visually-hidden">Buscar productos</label>
-                        <input id="searchInput" type="search" list="searchOptions"
-                               placeholder="Buscar por producto, marca o categoría..." autocomplete="off">
-                        <datalist id="searchOptions"></datalist>
+                <div id="previewProductsCarousel" class="carousel slide preview-products-carousel" data-bs-ride="carousel" data-bs-interval="3500">
+                    <div id="previewProducts" class="carousel-inner">
+                        <div class="carousel-item active"><div class="row g-4"><div class="col-12 text-center">Cargando productos...</div></div></div>
                     </div>
-                    <div id="filterList" class="filter-list"></div>
                 </div>
 
-                <div id="catalogLoading" class="catalog-loading">
-                    <div class="loading-symbol"><i class="bi bi-stars"></i></div>
-                    <p>Preparando tu beauty edit...</p>
-                </div>
-
-                <div id="catalogError" class="catalog-error d-none">
-                    <i class="bi bi-cloud-slash"></i>
-                    <h3>No pudimos cargar el catálogo</h3>
-                    <p>Revisa tu conexión e inténtalo nuevamente.</p>
-                    <button id="retryButton" class="btn btn-main">Reintentar</button>
-                </div>
-
-                <div id="emptyState" class="empty-catalog d-none">
-                    <i class="bi bi-search-heart"></i>
-                    <h3>No encontramos productos</h3>
-                    <p>Prueba con otra palabra o categoría.</p>
-                </div>
-
-                <div id="productGrid" class="row g-4"></div>
-                <div id="loadMoreWrapper" class="load-more-wrapper d-none">
-                    <button id="loadMoreButton" type="button" class="btn btn-light-main">
-                        Cargar más productos <i class="bi bi-plus-lg"></i>
-                    </button>
+                <div class="text-center mt-5">
+                    <a href="catalogo.html" class="btn btn-main">
+                        Ver catálogo completo
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
                 </div>
             </div>
         </section>
@@ -380,7 +359,7 @@
                         <h2>Favoritos de la semana</h2>
                     </div>
 
-                    <a href="#catalogo" class="section-arrow-link">
+                    <a href="catalogo.html" class="section-arrow-link">
                         Ver catálogo
                         <i class="bi bi-arrow-up-right"></i>
                     </a>
@@ -533,7 +512,7 @@
                         <em>que te haga brillar.</em>
                     </h2>
 
-                    <a href="#catalogo" class="btn btn-light-main">
+                    <a href="catalogo.html" class="btn btn-light-main">
                         Explorar catálogo
                         <i class="bi bi-arrow-up-right"></i>
                     </a>
@@ -640,7 +619,7 @@
                 <div class="footer-column">
                     <h3>Explora</h3>
                     <a href="#inicio">Inicio</a>
-                    <a href="#catalogo">Catálogo</a>
+                    <a href="catalogo.html">Catálogo</a>
                     <a href="#categorias">Categorías</a>
                     <a href="#nosotros">Nosotros</a>
                     <a id="privacyFooterLink" href="#privacidad">Privacidad</a>
@@ -703,7 +682,7 @@
                 <p>Agrega productos para comenzar tu pedido.</p>
 
                      <a id="cartExploreButton"
-                         href="#catalogo"
+                         href="catalogo.html"
                    class="btn btn-main"
                    data-bs-dismiss="offcanvas">
                     Explorar productos

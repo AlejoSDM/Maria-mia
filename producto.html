@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Producto | Maria Mia</title>
+    <meta name="description" content="Conoce todos los detalles de tu producto favorito Maria Mia.">
+    <link rel="icon" href="logocircular.jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="container">
+            <span><i class="bi bi-stars"></i> Belleza con propósito</span>
+            <span class="top-bar-message">Descubre productos para sentirte tú</span>
+            <span><i class="bi bi-heart"></i> Maria Mia</span>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a href="index.html#inicio" class="navbar-brand main-logo"><img src="logo.png" alt="Maria Mia - Belleza con propósito"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-label="Abrir menú"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html#inicio">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="catalogo.html">Catálogo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#categorias">Categorías</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#nosotros">Nosotros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#contacto">Contacto</a></li>
+                    </ul>
+                    <div class="navbar-actions">
+                        <a href="catalogo.html#searchInput" class="nav-search" aria-label="Buscar productos"><i class="bi bi-search"></i></a>
+                        <button class="cart-trigger" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-label="Abrir carrito"><i class="bi bi-bag"></i><span class="cart-label">Carrito</span><span id="cartCount" class="cart-counter">0</span></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="product-detail-section">
+            <div class="container">
+                <a href="catalogo.html" class="back-to-catalog"><i class="bi bi-arrow-left"></i> Volver al catálogo</a>
+                <div id="productDetailLoading" class="product-detail-loading"><i class="bi bi-stars"></i><p>Cargando producto...</p></div>
+                <div id="productDetailError" class="product-detail-error d-none"><i class="bi bi-cloud-slash"></i><h2>No encontramos este producto</h2><p>Es posible que haya sido retirado del catálogo.</p><a href="catalogo.html" class="btn btn-main">Volver al catálogo</a></div>
+
+                <article id="productDetail" class="product-detail d-none">
+                    <div class="product-detail-image"><img id="detailImage" src="" alt=""></div>
+                    <div class="product-detail-info">
+                        <span id="detailCategory" class="section-kicker"></span>
+                        <span id="detailBrand" class="detail-brand"></span>
+                        <h1 id="detailName"></h1>
+                        <strong id="detailPrice" class="detail-price"></strong>
+                        <div class="detail-divider"></div>
+                        <p id="detailDescription" class="detail-description"></p>
+                        <div class="detail-block"><h2>Detalles del producto</h2><p id="detailDetails"></p></div>
+                        <div class="detail-block"><h2>Recomendaciones de uso</h2><p id="detailUsage"></p></div>
+                        <div class="detail-block"><h2>Ideal para</h2><p id="detailRecommended"></p></div>
+                        <div class="product-purchase">
+                            <div class="quantity-selector"><button id="decreaseQuantity" type="button" aria-label="Disminuir cantidad">−</button><span id="productQuantity">1</span><button id="increaseQuantity" type="button" aria-label="Aumentar cantidad">+</button></div>
+                            <button id="addDetailToCart" type="button" class="btn btn-main">Agregar al carrito <i class="bi bi-bag-plus"></i></button>
+                        </div>
+                    </div>
+                </article>
+
+                <section id="relatedProductsSection" class="related-products-section d-none">
+                    <div class="section-heading-row">
+                        <div>
+                            <span class="section-kicker">TE PUEDE INTERESAR</span>
+                            <h2>También te pueden gustar</h2>
+                        </div>
+                        <p>Más productos para completar tu rutina.</p>
+                    </div>
+
+                    <div id="relatedProductsCarousel" class="carousel slide related-carousel" data-bs-ride="false">
+                        <div id="relatedProductsInner" class="carousel-inner"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#relatedProductsCarousel" data-bs-slide="prev" aria-label="Productos anteriores">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#relatedProductsCarousel" data-bs-slide="next" aria-label="Productos siguientes">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand"><img src="logo.png" alt="Maria Mia"><p>Belleza con propósito para expresar tu propia esencia.</p></div>
+                <div class="footer-column"><h3>Explora</h3><a href="index.html#inicio">Inicio</a><a href="catalogo.html">Catálogo</a><a href="index.html#categorias">Categorías</a><a href="index.html#nosotros">Nosotros</a></div>
+                <div class="footer-column"><h3>Conecta</h3><a href="https://www.instagram.com/mariamiabga/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@mariamiabga" target="_blank" rel="noopener">TikTok</a><a href="https://api.whatsapp.com/send?phone=573171364337&amp;text=Hola!!!%20Quisiera%20realizar%20un%20pedido%F0%9F%92%95%E2%9C%A8" target="_blank" rel="noopener">WhatsApp</a></div>
+                <div class="footer-column footer-note"><span>MARIA MIA</span><strong>BEAUTY<br>WITH<br>PURPOSE</strong></div>
+            </div>
+            <div class="footer-bottom"><span>© <span id="currentYear"></span> Maria Mia. Todos los derechos reservados.</span><span>Hecho para celebrar tu esencia.</span></div>
+        </div>
+    </footer>
+
+    <aside id="cartOffcanvas" class="offcanvas offcanvas-end cart-offcanvas" tabindex="-1" aria-labelledby="cartTitle">
+        <div class="offcanvas-header"><div><span class="section-kicker">MARIA MIA BAG</span><h2 id="cartTitle">Tu carrito</h2></div><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar carrito"></button></div>
+        <div class="offcanvas-body d-flex flex-column">
+            <div id="cartItems" class="cart-items flex-grow-1"></div>
+            <div id="cartEmpty" class="cart-empty d-none"><i class="bi bi-bag-heart"></i><h3>Tu carrito está vacío</h3><p>Agrega productos para comenzar tu pedido.</p><a id="cartExploreButton" href="catalogo.html" class="btn btn-main" data-bs-dismiss="offcanvas">Explorar productos</a></div>
+            <div id="cartSummary" class="cart-summary d-none"><div class="summary-row"><span>Subtotal</span><strong id="cartSubtotal">$0</strong></div><div class="summary-row total-row"><span>Subtotal productos</span><strong id="cartTotal">$0</strong></div><p class="shipping-notice">El envío se calcula y confirma por WhatsApp.</p><button id="clearCartButton" type="button" class="clear-cart-button">Vaciar carrito</button><button id="checkoutButton" type="button" class="btn btn-main w-100">Finalizar pedido <i class="bi bi-arrow-up-right"></i></button></div>
+        </div>
+    </aside>
+
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content checkout-modal"><div class="modal-header"><div><span class="section-kicker">ÚLTIMO PASO</span><h2 id="checkoutTitle">Completa tu pedido</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+            <form id="checkoutForm"><div class="modal-body"><div class="row g-4"><div class="col-lg-6"><h3 class="form-title">Datos del cliente</h3><div class="form-group"><label for="customerName">Nombre completo *</label><input id="customerName" name="nombre" type="text" required></div><div class="form-group"><label for="customerPhone">Teléfono *</label><input id="customerPhone" name="telefono" type="tel" required></div><div class="form-group"><label for="customerCity">Ciudad *</label><input id="customerCity" name="ciudad" type="text" required></div><div class="form-group"><label for="customerNeighborhood">Barrio *</label><input id="customerNeighborhood" name="barrio" type="text" required></div><div class="form-group"><label for="customerAddress">Dirección *</label><input id="customerAddress" name="direccion" type="text" required></div><div class="form-group"><label for="customerApartment">Casa o apartamento</label><input id="customerApartment" name="casaApartamento" type="text"></div><div class="form-group"><label for="customerNotes">Observaciones</label><textarea id="customerNotes" name="observaciones" rows="3"></textarea></div></div><div class="col-lg-6"><h3 class="form-title">Resumen del pedido</h3><div id="checkoutSummary" class="checkout-summary"></div><p class="shipping-notice">El total mostrado no incluye el costo del envío. Lo confirmaremos contigo por WhatsApp.</p></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Volver</button><button id="confirmOrderButton" type="submit" class="btn btn-main">Confirmar por WhatsApp <i class="bi bi-whatsapp"></i></button></div></form>
+        </div></div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"><div id="appToast" class="toast custom-toast" role="status" aria-live="polite"><div class="toast-body"><i class="bi bi-check-circle-fill"></i><span id="toastMessage"></span></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="producto.js"></script>
+</body>
+</html>

@@ -7,8 +7,22 @@ import { CONFIG } from "./config.js";
 import { formatearPrecio } from "./catalogo.js";
 
 export function configurarCheckout() {
-    document.querySelector("#checkoutButton").addEventListener("click", abrirCheckout);
-    document.querySelector("#checkoutForm").addEventListener("submit", enviarPedido);
+    const checkoutButton = document.querySelector("#checkoutButton");
+    const checkoutModal = document.querySelector("#checkoutModal");
+
+    checkoutButton?.addEventListener("click", abrirCheckout);
+    document.querySelector("#checkoutForm")?.addEventListener("submit", enviarPedido);
+
+    checkoutModal?.addEventListener("hide.bs.modal", () => {
+        if (checkoutModal.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+    });
+
+    checkoutModal?.addEventListener("hidden.bs.modal", () => {
+        const focusTarget = document.querySelector(".cart-trigger") || checkoutButton;
+        focusTarget?.focus({ preventScroll: true });
+    });
 }
 
 function abrirCheckout() {

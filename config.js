@@ -1,5 +1,5 @@
 export const CONFIG = {
-    API_URL: "https://script.google.com/macros/s/AKfycbyHEAdX0BEzh0L_mHW1Ke7Udt7uVZsriTWhvXnAyDkRbJ77CkMb1y22WKytpvdzgTMJ/exec",
+    API_URL: "https://script.google.com/macros/s/AKfycbz0C-nCcaS3bSQCFXBNwXZNm9n5KXaS2e7a00W95jNBwUo0z0ohwECS_dtDuraZ-xI/exec",
     WHATSAPP_NUMBER: "573171364337",
     CART_STORAGE_KEY: "mariaMiaCarrito"
 };

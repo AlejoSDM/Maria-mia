@@ -4,7 +4,8 @@ import { configurarCheckout } from "./checkout.js";
 
 
 document.addEventListener("DOMContentLoaded", async () => {
-    document.querySelector("#currentYear").textContent = new Date().getFullYear();
+    const currentYear = document.querySelector("#currentYear");
+    if (currentYear) currentYear.textContent = new Date().getFullYear();
 
     configurarAvisoPrivacidad();
 
@@ -14,11 +15,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         siteHeader.classList.toggle("is-scrolled", window.scrollY > 40);
     }, { passive: true });
 
-    configurarCatalogo();
+    const catalogElements = document.querySelector("#productGrid, #categoryList, #featuredProducts, #previewProducts");
+    if (catalogElements) configurarCatalogo();
     configurarCarrito();
     configurarCheckout();
 
-    await cargarProductos();
+    if (document.querySelector("#productGrid, #featuredProducts, #previewProducts, #categoryList")) {
+        await cargarProductos();
+    }
 });
 
 function configurarAvisoPrivacidad() {

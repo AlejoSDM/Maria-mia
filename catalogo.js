@@ -8,6 +8,9 @@ let activeBrand = "Todas";
 let searchTerm = "";
 let visibleProducts = 10;
 
+const categoryFromUrl = new URLSearchParams(window.location.search).get("categoria");
+if (categoryFromUrl?.trim()) activeCategory = categoryFromUrl.trim();
+
 const cacheKey = "catalogo_productos_web";
 
 const desktopProductsPerPage = 10;
@@ -34,6 +37,7 @@ function setProducts(products) {
     createSearchOptions();
 
     renderFilteredProducts();
+    renderPreviewProducts(allProducts.slice(-6).reverse());
     renderFeaturedProducts(featuredProducts);
 }
 
@@ -127,15 +131,15 @@ function isFeaturedProduct(product) {
 }
 
 export function configurarCatalogo() {
-    document.querySelector("#searchInput").addEventListener("input", event => {
+    document.querySelector("#searchInput")?.addEventListener("input", event => {
         searchTerm = event.target.value.toLowerCase().trim();
         visibleProducts = getProductsPerPage();
         renderFilteredProducts();
     });
 
-    document.querySelector("#retryButton").addEventListener("click", cargarProductos);
+    document.querySelector("#retryButton")?.addEventListener("click", cargarProductos);
 
-    document.querySelector("#filterList").addEventListener("click", event => {
+    document.querySelector("#filterList")?.addEventListener("click", event => {
         const button = event.target.closest("[data-filter-type]");
         if (!button) return;
 
@@ -146,18 +150,24 @@ export function configurarCatalogo() {
         renderFilteredProducts();
     });
 
-    document.querySelector("#categoryList").addEventListener("click", event => {
+    document.querySelector("#categoryList")?.addEventListener("click", event => {
         const card = event.target.closest("[data-category]");
         if (!card) return;
 
         activeCategory = card.dataset.category;
-        document.querySelector("#catalogo").scrollIntoView({ behavior: "smooth" });
+        const catalogSection = document.querySelector("#catalogo");
+        if (catalogSection) {
+            catalogSection.scrollIntoView({ behavior: "smooth" });
+        } else {
+            window.location.href = `catalogo.html?categoria=${encodeURIComponent(activeCategory)}`;
+            return;
+        }
         visibleProducts = getProductsPerPage();
         updateActiveFilterButtons();
         renderFilteredProducts();
     });
 
-    document.querySelector("#productGrid").addEventListener("click", event => {
+    document.querySelector("#productGrid")?.addEventListener("click", event => {
         const button = event.target.closest("[data-add-product]");
         if (!button || button.disabled) return;
 
@@ -165,15 +175,17 @@ export function configurarCatalogo() {
         if (producto) agregarAlCarrito(producto);
     });
 
-    document.querySelector("#featuredProducts").addEventListener("click", event => {
-        const button = event.target.closest("[data-add-product]");
-        if (!button || button.disabled) return;
+    document.querySelectorAll("#featuredProducts, #previewProducts").forEach(contenedor => {
+        contenedor.addEventListener("click", event => {
+            const button = event.target.closest("[data-add-product]");
+            if (!button || button.disabled) return;
 
-        const producto = allProducts.find(item => item.id === button.dataset.addProduct);
-        if (producto) agregarAlCarrito(producto);
+            const producto = allProducts.find(item => item.id === button.dataset.addProduct);
+            if (producto) agregarAlCarrito(producto);
+        });
     });
 
-    document.querySelector("#loadMoreButton").addEventListener("click", () => {
+    document.querySelector("#loadMoreButton")?.addEventListener("click", () => {
         visibleProducts += getProductsPerPage();
         renderFilteredProducts();
     });
@@ -190,6 +202,9 @@ export function configurarCatalogo() {
 }
 
 function renderFilteredProducts() {
+    const grid = document.querySelector("#productGrid");
+    if (!grid) return;
+
     const matchingProducts = allProducts.filter(producto => {
         const coincideCategoria = activeCategory === "Todas" ||
             producto.categoria.toLowerCase() === activeCategory.toLowerCase();
@@ -200,7 +215,6 @@ function renderFilteredProducts() {
     });
     const resultado = matchingProducts.slice(0, visibleProducts);
 
-    const grid = document.querySelector("#productGrid");
     grid.innerHTML = resultado.map(producto => crearCardProducto(producto)).join("");
 
     document.querySelector("#emptyState").classList.toggle("d-none", resultado.length > 0);
@@ -209,6 +223,7 @@ function renderFilteredProducts() {
 
 function renderFeaturedProducts(destacados) {
     const contenedor = document.querySelector("#featuredProducts");
+    if (!contenedor) return;
 
     contenedor.innerHTML = destacados.length
         ? destacados.map(producto => crearCardProducto(producto, true)).join("")
@@ -238,19 +253,22 @@ function renderizarCategorias() {
         .sort();
 
     const contenedor = document.querySelector("#categoryList");
+    if (!contenedor) return;
 
     contenedor.innerHTML = categorias.length
         ? categorias.map(categoria => {
             const icono = iconosCategoria[categoria.toLowerCase()] || "bi-bag-heart";
             return `
                 <div>
-                    <button class="category-card" data-category="${escapeHtml(categoria)}">
+                    <a class="category-card"
+                       href="catalogo.html?categoria=${encodeURIComponent(categoria)}"
+                       data-category="${escapeHtml(categoria)}">
                         <span class="category-icon"><i class="bi ${icono}"></i></span>
                         <span>
                             <h3>${escapeHtml(categoria)}</h3>
                             <small>Explorar</small>
                         </span>
-                    </button>
+                    </a>
                 </div>
             `;
         }).join("")
@@ -260,6 +278,7 @@ function renderizarCategorias() {
 
 function createFilters() {
     const contenedor = document.querySelector("#filterList");
+    if (!contenedor) return;
     const categorias = [...new Set(allProducts.map(producto => producto.categoria))].filter(Boolean).sort();
     const marcas = [...new Set(allProducts.map(producto => producto.marca))].filter(Boolean).sort();
     contenedor.innerHTML = `
@@ -268,6 +287,7 @@ function createFilters() {
                 <span><i class="bi bi-grid-3x3-gap"></i> Filtrar por categoría</span>
                 <i class="bi bi-chevron-down filter-chevron"></i>
             </summary>
+            <span class="filter-selected" data-filter-selected="category">Todas</span>
             <div class="filter-options">
                 ${["Todas", ...categorias].map(value => `<button type="button" class="filter-button" data-filter-type="category" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
             </div>
@@ -277,6 +297,7 @@ function createFilters() {
                 <span><i class="bi bi-tags"></i> Filtrar por marca</span>
                 <i class="bi bi-chevron-down filter-chevron"></i>
             </summary>
+            <span class="filter-selected" data-filter-selected="brand">Todas</span>
             <div class="filter-options">
                 ${["Todas", ...marcas].map(value => `<button type="button" class="filter-button" data-filter-type="brand" data-filter-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}
             </div>
@@ -291,6 +312,11 @@ function updateActiveFilterButtons() {
     document.querySelectorAll("[data-filter-type='brand']").forEach(button => {
         button.classList.toggle("active", button.dataset.filterValue === activeBrand);
     });
+
+    const selectedCategory = document.querySelector("[data-filter-selected='category']");
+    const selectedBrand = document.querySelector("[data-filter-selected='brand']");
+    if (selectedCategory) selectedCategory.textContent = activeCategory;
+    if (selectedBrand) selectedBrand.textContent = activeBrand;
 }
 
 function createSearchOptions() {
@@ -312,45 +338,53 @@ function crearCardProducto(producto, isFeatured = false) {
     const agotado = !producto.disponible;
 
     return `
-        <div class="col-sm-6 col-lg-4">
-            <article class="product-card">
+        <div class="col-6 col-lg-4">
+            <article class="product-card" tabindex="0">
                 <div class="product-image-wrapper">
-                    <img class="product-image"
-                         src="${escapeAttribute(imagen)}"
-                         alt="${escapeAttribute(producto.nombre)}"
-                         loading="lazy"
-                         onerror="this.src='https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia'">
+                    <a href="producto.html?id=${encodeURIComponent(producto.id)}"
+                       class="product-card-link"
+                       aria-label="Ver ${escapeAttribute(producto.nombre)}">
+                        <img class="product-image"
+                             src="${escapeAttribute(imagen)}"
+                             alt="${escapeAttribute(producto.nombre)}"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia'">
 
-                    <div class="product-image-shine"></div>
+                        <div class="product-image-shine"></div>
 
-                    <div class="product-badges">
-                        ${isFeatured ? `<span class="product-badge product-badge-featured"><i class="bi bi-stars"></i> MM Select</span>` : ""}
-                        ${agotado ? `<span class="badge-soldout">AGOTADO</span>` : ""}
-                    </div>
+                        <div class="product-badges">
+                            ${isFeatured ? `<span class="product-badge product-badge-featured"><i class="bi bi-stars"></i> MM Select</span>` : ""}
+                            ${agotado ? `<span class="badge-soldout">AGOTADO</span>` : ""}
+                        </div>
+
+                        <div class="product-hover-info">
+                            <span class="product-category">${escapeHtml(producto.categoria)}</span>
+                            ${producto.marca ? `<small class="product-brand">${escapeHtml(producto.marca)}</small>` : ""}
+                            <p class="product-description">${escapeHtml(producto.descripcion)}</p>
+                        </div>
+                    </a>
 
                 </div>
 
-                <div class="product-content">
-                    <div class="product-info">
-                        <span class="product-category">${escapeHtml(producto.categoria)}</span>
-                        ${producto.marca ? `<small class="product-brand">${escapeHtml(producto.marca)}</small>` : ""}
-                        <h3>${escapeHtml(producto.nombre)}</h3>
-                        <p class="product-description">${escapeHtml(producto.descripcion)}</p>
-                    </div>
-
-                    <div class="product-footer">
-                        <span class="product-price">${formatearPrecio(producto.precio)}</span>
-                        <button type="button" class="add-to-cart-button"
-                                data-add-product="${escapeAttribute(producto.id)}"
-                                ${agotado ? "disabled" : ""}
-                                aria-label="Agregar ${escapeAttribute(producto.nombre)} al carrito"
-                                title="${agotado ? "Producto agotado" : "Agregar al carrito"}">
-                            <i class="bi bi-bag-plus"></i>
-                            <span>Agregar</span>
-                        </button>
-                    </div>
-                </div>
             </article>
+
+            <div class="product-outside-info">
+                <div class="product-info">
+                    <h3><a href="producto.html?id=${encodeURIComponent(producto.id)}">${escapeHtml(producto.nombre)}</a></h3>
+                </div>
+
+                <div class="product-footer">
+                    <span class="product-price">${formatearPrecio(producto.precio)}</span>
+                    <button type="button" class="add-to-cart-button"
+                            data-add-product="${escapeAttribute(producto.id)}"
+                            ${agotado ? "disabled" : ""}
+                            aria-label="Agregar ${escapeAttribute(producto.nombre)} al carrito"
+                            title="${agotado ? "Producto agotado" : "Agregar al carrito"}">
+                        <i class="bi bi-bag-plus"></i>
+                        <span>Agregar</span>
+                    </button>
+                </div>
+            </div>
         </div>
     `;
 }
@@ -364,21 +398,24 @@ export function formatearPrecio(precio) {
 }
 
 function mostrarCarga(visible) {
-    document.querySelector("#catalogLoading").classList.toggle("d-none", !visible);
+    const loading = document.querySelector("#catalogLoading");
+    const grid = document.querySelector("#productGrid");
+    const featured = document.querySelector("#featuredProducts");
+    loading?.classList.toggle("d-none", !visible);
     if (visible) {
-        document.querySelector("#productGrid").innerHTML = "";
-        document.querySelector("#featuredProducts").innerHTML = "";
+        if (grid) grid.innerHTML = "";
+        if (featured) featured.innerHTML = "";
     }
 }
 
 function mostrarError() {
-    document.querySelector("#catalogError").classList.remove("d-none");
-    document.querySelector("#productGrid").innerHTML = "";
-    document.querySelector("#featuredProducts").innerHTML = "";
+    document.querySelector("#catalogError")?.classList.remove("d-none");
+    document.querySelector("#productGrid")?.replaceChildren();
+    document.querySelector("#featuredProducts")?.replaceChildren();
 }
 
 function ocultarError() {
-    document.querySelector("#catalogError").classList.add("d-none");
+    document.querySelector("#catalogError")?.classList.add("d-none");
 }
 
 function escapeHtml(value) {
@@ -406,4 +443,38 @@ function obtenerImagenSegura(valor) {
     }
 
     return fallback;
+}
+
+function renderPreviewProducts(destacados) {
+    const contenedor = document.querySelector("#previewProducts");
+    if (!contenedor) return;
+
+    if (!destacados.length) {
+        contenedor.innerHTML = `<div class="carousel-item active"><div class="row g-4"><div class="col-12 text-center text-muted">No hay productos destacados disponibles.</div></div></div>`;
+        return;
+    }
+
+    const groups = [];
+    for (let index = 0; index < destacados.length; index += 3) {
+        groups.push(destacados.slice(index, index + 3));
+    }
+
+    contenedor.innerHTML = groups.map((group, index) => `
+        <div class="carousel-item ${index === 0 ? "active" : ""}">
+            <div class="row g-4">
+                ${group.map(producto => crearCardProducto(producto, true)).join("")}
+            </div>
+        </div>
+    `).join("");
+
+    const carouselElement = document.querySelector("#previewProductsCarousel");
+    if (carouselElement && window.bootstrap?.Carousel) {
+        const carousel = bootstrap.Carousel.getOrCreateInstance(carouselElement, {
+            interval: 3500,
+            pause: false,
+            ride: "carousel",
+            wrap: true
+        });
+        carousel.cycle();
+    }
 }

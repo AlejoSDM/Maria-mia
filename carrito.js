@@ -24,26 +24,33 @@ export function configurarCarrito() {
         event.preventDefault();
 
         const cartOffcanvas = document.querySelector("#cartOffcanvas");
+        const destination = event.currentTarget.href;
         bootstrap.Offcanvas.getOrCreateInstance(cartOffcanvas).hide();
 
         window.setTimeout(() => {
-            document.querySelector("#catalogo")?.scrollIntoView({ behavior: "smooth" });
+            const catalogSection = document.querySelector("#catalogo");
+            if (catalogSection) {
+                catalogSection.scrollIntoView({ behavior: "smooth" });
+                return;
+            }
+
+            window.location.href = destination;
         }, 250);
     });
 }
 
-export function agregarAlCarrito(producto) {
+export function agregarAlCarrito(producto, cantidad = 1) {
     const existente = carrito.find(item => item.id === producto.id);
 
     if (existente) {
-        existente.cantidad = Math.min(existente.cantidad + 1, 99);
+        existente.cantidad = Math.min(existente.cantidad + cantidad, 99);
     } else {
         carrito.push({
             id: producto.id,
             nombre: producto.nombre,
             precio: Number(producto.precio),
             imagen: producto.imagen,
-            cantidad: 1
+            cantidad: Math.min(cantidad, 99)
         });
     }
 
