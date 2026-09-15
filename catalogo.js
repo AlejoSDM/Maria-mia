@@ -432,14 +432,51 @@ function escapeAttribute(value) {
 }
 
 function obtenerImagenSegura(valor) {
-    const fallback = "https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia";
+    const fallback =
+        "https://placehold.co/700x500/fff0f1/e63946?text=Maria+Mia";
+
     if (!valor) return fallback;
 
+    let enlace = String(valor).trim();
+
+    // Si la celda contiene algo como:
+    // =IMAGE("https://...")
+    const resultadoImage = enlace.match(/=IMAGE\(["']?(.*?)["']?\)/i);
+    if (resultadoImage) {
+        enlace = resultadoImage[1];
+    }
+
+    // Extraer ID desde enlaces de Google Drive
+    let idDrive = null;
+
+    const formatoArchivo = enlace.match(
+        /drive\.google\.com\/file\/d\/([^/]+)/
+    );
+
+    const formatoId = enlace.match(
+        /[?&]id=([^&]+)/
+    );
+
+    if (formatoArchivo) {
+        idDrive = formatoArchivo[1];
+    } else if (formatoId) {
+        idDrive = formatoId[1];
+    }
+
+    if (idDrive) {
+        // Enlace optimizado para mostrar imágenes de Google Drive
+        return `https://drive.google.com/thumbnail?id=${encodeURIComponent(idDrive)}&sz=w1000`;
+    }
+
+    // Enlace normal de internet
     try {
-        const url = new URL(String(valor), window.location.href);
-        if (["http:", "https:"].includes(url.protocol)) return url.href;
+        const url = new URL(enlace, window.location.href);
+
+        if (["http:", "https:"].includes(url.protocol)) {
+            return url.href;
+        }
     } catch (error) {
-        return fallback;
+        console.warn("URL de imagen inválida:", valor);
     }
 
     return fallback;
@@ -450,31 +487,63 @@ function renderPreviewProducts(destacados) {
     if (!contenedor) return;
 
     if (!destacados.length) {
-        contenedor.innerHTML = `<div class="carousel-item active"><div class="row g-4"><div class="col-12 text-center text-muted">No hay productos destacados disponibles.</div></div></div>`;
+        contenedor.innerHTML = `
+            <div class="carousel-item active">
+                <div class="row g-4">
+                    <div class="col-12 text-center text-muted">
+                        No hay productos disponibles.
+                    </div>
+                </div>
+            </div>
+        `;
         return;
     }
 
+    // En móvil se muestran 2 productos.
+    // En escritorio se muestran 3 productos.
+    const productosPorGrupo = window.innerWidth <= 767 ? 2 : 3;
+
     const groups = [];
-    for (let index = 0; index < destacados.length; index += 3) {
-        groups.push(destacados.slice(index, index + 3));
+
+    for (
+        let index = 0;
+        index < destacados.length;
+        index += productosPorGrupo
+    ) {
+        groups.push(
+            destacados.slice(index, index + productosPorGrupo)
+        );
     }
 
     contenedor.innerHTML = groups.map((group, index) => `
         <div class="carousel-item ${index === 0 ? "active" : ""}">
             <div class="row g-4">
-                ${group.map(producto => crearCardProducto(producto, true)).join("")}
+                ${group.map(producto =>
+                    crearCardProducto(producto, true)
+                ).join("")}
             </div>
         </div>
     `).join("");
 
-    const carouselElement = document.querySelector("#previewProductsCarousel");
+    const carouselElement = document.querySelector(
+        "#previewProductsCarousel"
+    );
+
     if (carouselElement && window.bootstrap?.Carousel) {
-        const carousel = bootstrap.Carousel.getOrCreateInstance(carouselElement, {
+        const carouselAnterior =
+            bootstrap.Carousel.getInstance(carouselElement);
+
+        carouselAnterior?.dispose();
+
+        const carousel = new bootstrap.Carousel(carouselElement, {
             interval: 3500,
             pause: false,
             ride: "carousel",
             wrap: true
         });
-        carousel.cycle();
+
+        if (groups.length > 1) {
+            carousel.cycle();
+        }
     }
 }

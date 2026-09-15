@@ -14,6 +14,31 @@ let allProducts = [];
 let currentProduct = null;
 let quantity = 1;
 
+const cacheKey = "catalogo_productos_web";
+const fallbackImage =
+    "https://placehold.co/900x900/fff0f1/e63946?text=Maria+Mia";
+
+
+function obtenerImagenSegura(valor) {
+    if (!valor) return fallbackImage;
+
+    const enlace = String(valor).trim();
+
+    const archivoDrive = enlace.match(
+        /drive\.google\.com\/file\/d\/([^/]+)/
+    );
+
+    const parametroId = enlace.match(/[?&]id=([^&]+)/);
+
+    const idDrive = archivoDrive?.[1] || parametroId?.[1];
+
+    if (idDrive) {
+        return `https://drive.google.com/thumbnail?id=${encodeURIComponent(idDrive)}&sz=w1000`;
+    }
+
+    return enlace;
+}
+
 function formatPrice(value) {
     const raw = String(value ?? "").trim();
     const number = Number(
@@ -69,47 +94,118 @@ async function loadProduct() {
         return;
     }
 
+    let productoCargadoDesdeCache = false;
+
+    // Primero cargar desde localStorage
     try {
-        const response = await fetch(CONFIG.API_URL, { cache: "no-store" });
-        if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+        const productosGuardados = localStorage.getItem(cacheKey);
+
+        if (productosGuardados) {
+            const productos = JSON.parse(productosGuardados);
+
+            if (Array.isArray(productos)) {
+                allProducts = productos.map(normalizeProduct);
+
+                currentProduct = allProducts.find(product =>
+                    product.id.trim().toLowerCase() ===
+                    productId.trim().toLowerCase()
+                );
+
+                if (currentProduct && isAvailable(currentProduct)) {
+                    renderProduct(currentProduct);
+                    renderRelatedProducts(currentProduct);
+                    productoCargadoDesdeCache = true;
+                }
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo leer la caché:", error);
+        localStorage.removeItem(cacheKey);
+    }
+
+    // Después actualizar desde la API
+    try {
+        const apiUrl = new URL(CONFIG.API_URL);
+        apiUrl.searchParams.set("_", Date.now().toString());
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(apiUrl, {
+            cache: "no-store",
+            signal: controller.signal,
+            headers: {
+                Accept: "application/json"
+            }
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
 
         const data = await response.json();
-        const products = Array.isArray(data) ? data : data.productos || data.products;
-        if (!Array.isArray(products)) throw new Error("Respuesta inválida");
+        const products = Array.isArray(data)
+            ? data
+            : data.productos || data.products;
 
-        allProducts = products
-            .map(normalizeProduct)
-        currentProduct = allProducts.find(product => product.id === productId);
+        if (!Array.isArray(products)) {
+            throw new Error("Respuesta inválida");
+        }
+
+        localStorage.setItem(cacheKey, JSON.stringify(products));
+
+        allProducts = products.map(normalizeProduct);
+
+        currentProduct = allProducts.find(product =>
+            product.id.trim().toLowerCase() ===
+            productId.trim().toLowerCase()
+        );
 
         if (!currentProduct || !isAvailable(currentProduct)) {
-            showProductError();
+            if (!productoCargadoDesdeCache) showProductError();
             return;
         }
 
         renderProduct(currentProduct);
         renderRelatedProducts(currentProduct);
+
     } catch (error) {
         console.error("Error cargando producto:", error);
-        showProductError();
+
+        // Si ya se mostró desde la caché, no ocultar el producto
+        if (!productoCargadoDesdeCache) {
+            showProductError();
+        }
     }
 }
 
+
+
 function renderProduct(product) {
     const image = document.querySelector("#detailImage");
-    image.src = product.imagen;
+    const imageUrl = obtenerImagenSegura(product.imagen);
+
+    image.src = imageUrl;
     image.alt = product.nombre;
+
     image.onerror = () => {
-        image.src = "https://placehold.co/900x900/fff0f1/e63946?text=Maria+Mia";
+        image.src = fallbackImage;
     };
+
 
     document.querySelector("#detailCategory").textContent = product.categoria;
     document.querySelector("#detailBrand").textContent = product.marca;
     document.querySelector("#detailName").textContent = product.nombre;
     document.querySelector("#detailPrice").textContent = formatPrice(product.precio);
     document.querySelector("#detailDescription").textContent = product.descripcion;
-    document.querySelector("#detailDetails").textContent = product.detalles || "No hay detalles adicionales.";
-    document.querySelector("#detailUsage").textContent = product.uso || "Usar según las necesidades del producto.";
-    document.querySelector("#detailRecommended").textContent = product.recomendaciones || "Ideal para complementar tu rutina.";
+    document.querySelector("#detailDetails").textContent =
+        product.detalles || "No hay detalles adicionales.";
+    document.querySelector("#detailUsage").textContent =
+        product.uso || "Usar según las necesidades del producto.";
+    document.querySelector("#detailRecommended").textContent =
+        product.recomendaciones || "Ideal para complementar tu rutina.";
 
     loading?.classList.add("d-none");
     detail?.classList.remove("d-none");
@@ -124,23 +220,45 @@ function showProductError() {
 function renderRelatedProducts(product) {
     const relatedSection = document.querySelector("#relatedProductsSection");
     const relatedInner = document.querySelector("#relatedProductsInner");
+
     if (!relatedSection || !relatedInner) return;
 
-    const currentCategory = product.categoria.toLowerCase();
-    const relatedProducts = allProducts
-        .filter(item => {
-            return isAvailable(item) &&
-                item.categoria.toLowerCase() === currentCategory &&
-                item.id !== product.id;
-        })
-        .slice(0, 8);
+    const currentId = product.id.trim().toLowerCase();
+    const currentCategory = product.categoria.trim().toLowerCase();
 
+    // Productos disponibles, excluyendo el producto actual
+    const availableProducts = allProducts.filter(item => {
+        return (
+            isAvailable(item) &&
+            item.id.trim().toLowerCase() !== currentId
+        );
+    });
+
+    // Primero productos de la misma categoría
+    const sameCategoryProducts = availableProducts.filter(item => {
+        return item.categoria.trim().toLowerCase() === currentCategory;
+    });
+
+    // Después productos de otras categorías
+    const otherCategoryProducts = availableProducts.filter(item => {
+        return item.categoria.trim().toLowerCase() !== currentCategory;
+    });
+
+    // Se prioriza la misma categoría y se completa con otras categorías
+    const relatedProducts = [
+        ...sameCategoryProducts,
+        ...otherCategoryProducts
+    ].slice(0, 8);
+
+    // Si no existe ningún otro producto disponible
     if (!relatedProducts.length) {
         relatedSection.classList.add("d-none");
         return;
     }
 
+    // Dividir los productos en grupos de 4 para el carrusel
     const groups = [];
+
     for (let index = 0; index < relatedProducts.length; index += 4) {
         groups.push(relatedProducts.slice(index, index + 4));
     }
@@ -154,23 +272,41 @@ function renderRelatedProducts(product) {
     `).join("");
 
     relatedSection.classList.remove("d-none");
+
+    // Mostrar controles solo si hay más de una página
+    const previousButton = document.querySelector(
+        "#relatedProductsCarousel .carousel-control-prev"
+    );
+
+    const nextButton = document.querySelector(
+        "#relatedProductsCarousel .carousel-control-next"
+    );
+
+    const hasMultipleGroups = groups.length > 1;
+
+    previousButton?.classList.toggle("d-none", !hasMultipleGroups);
+    nextButton?.classList.toggle("d-none", !hasMultipleGroups);
 }
 
 function createRelatedProductCard(product) {
-    const image = product.imagen || "https://placehold.co/700x700/fff0f1/e63946?text=Maria+Mia";
+    const image = obtenerImagenSegura(product.imagen);
 
     return `
         <article class="related-product-card">
             <a href="producto.html?id=${encodeURIComponent(product.id)}" class="related-product-link">
                 <div class="related-product-image">
-                    <img src="${escapeHtml(image)}" alt="${escapeHtml(product.nombre)}" loading="lazy"
+                    <img src="${escapeHtml(image)}"
+                         alt="${escapeHtml(product.nombre)}"
+                         loading="lazy"
                          onerror="this.src='https://placehold.co/700x700/fff0f1/e63946?text=Maria+Mia'">
                 </div>
                 <div class="related-product-content">
                     <span class="related-product-category">${escapeHtml(product.categoria)}</span>
                     <span class="related-product-brand">${escapeHtml(product.marca)}</span>
                     <h3>${escapeHtml(product.nombre)}</h3>
-                    <strong class="related-product-price">${formatPrice(product.precio)}</strong>
+                    <strong class="related-product-price">
+                        ${formatPrice(product.precio)}
+                    </strong>
                 </div>
             </a>
         </article>
